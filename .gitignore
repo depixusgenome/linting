@@ -1,0 +1,17 @@
+*__pycache__/
+.cache
+.lock-*
+.waf*
+.*.un~
+.*.swp
+build/
+waf*-*
+pyenv/
+*.py~
+.ipynb_checkpoints*
+.dep*
+.vs
+*.VC.*
+*.sln
+*.lastbuild
+*.lastbuildstate
