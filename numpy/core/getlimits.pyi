@@ -7,6 +7,9 @@ from . import numerictypes as ntypes
 
 class finfo:
     def __new__(cls, dtype): ...
+    min = ... # type: float
+    max = ... # type: float
+    precision = ... # type: float
 
 class iinfo:
     dtype = ...  # type: Any
