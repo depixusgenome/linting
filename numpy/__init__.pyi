@@ -13,7 +13,7 @@ from .lib import *
 from . import matrixlib as _mat
 from .matrixlib import *
 from .compat import long as long
-import random
+from . import random
 from . import ma
 
 def median(*_, **_2): ...
