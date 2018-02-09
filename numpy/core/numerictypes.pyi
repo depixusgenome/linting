@@ -62,7 +62,7 @@ half= Any
 inexact= Any
 int0= Any
 int16= Any
-int32= Any
+def int32(*a): ...
 int64= Any
 int8= Any
 int_= Any
