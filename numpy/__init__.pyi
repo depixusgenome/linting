@@ -16,6 +16,7 @@ from .compat import long as long
 from . import random
 from . import ma
 
+r_ : Any
 
 def median(*_, **_2): ...
 def histogram(*_, **_2): ...
