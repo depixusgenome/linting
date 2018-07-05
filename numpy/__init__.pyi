@@ -15,6 +15,7 @@ from .matrixlib import *
 from .compat import long as long
 from . import random
 from . import ma
+import fft
 
 r_ : Any
 
