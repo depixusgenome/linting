@@ -3,6 +3,7 @@
 # pylint: disable=protected-access
 "Correcting a pylint bug in python 3.7 and pylint <= 2.2.1"
 import sys
+import re
 
 def _namedtuple_docstring():
     from  pylint.checkers.base import DocStringChecker as _doc
@@ -83,6 +84,57 @@ def _py37_class_getitem__():
     _utils.supports_getitem = supports_getitem
     _typecheck.supports_getitem = supports_getitem
 
+def _py37_assign_no_return():
+    import pylint.checkers.typecheck as _typecheck
+    old = _typecheck.TypeChecker.visit_assign
+    mat = re.compile(r".*\s*=\s*np\.*").match
+    def _visit_assign(self, node):
+        return None  if mat(node.as_string()) else old(self, node)
+    _typecheck.TypeChecker.visit_assign = _visit_assign
+
+    mat2 = re.compile(r"-\s*\(*\s*np\.*").match
+    old2 = _typecheck.TypeChecker.visit_unaryop
+    def _visit_unaryop(self, node):
+        return None  if mat2(node.as_string()) else old2(self, node)
+    _typecheck.TypeChecker.visit_unaryop = _visit_unaryop
+
+    from pylint.checkers import UNDEFINED
+    old3 = _typecheck.TypeChecker.add_message
+    def _add_message(
+        self,
+        msg_id,
+        line=None,
+        node=None,
+        args=None,
+        confidence= UNDEFINED,
+        col_offset=None,
+    ):
+        """add a message of a given type"""
+        if msg_id == "invalid-unary-operand-type" and args.endswith("recarray"):
+            return
+        self.linter.add_message(msg_id, line, node, args, confidence, col_offset)
+
+    _typecheck.TypeChecker.add_message = _add_message
+
+def _py37_recursionerror():
+    import astroid.builder as _builder
+    old = _builder.AstroidBuilder.delayed_assattr
+    def _delayed_assattr(self, node):
+        try:
+            return old(self, node)
+        except RecursionError:
+            pass
+    _builder.AstroidBuilder.delayed_assattr = _delayed_assattr
+
+    import pylint.checkers.base as _base
+    old2 = _base.ComparisonChecker._check_callable_comparison
+    def _check_callable_comparison(self, node):
+        try:
+            old2(self, node)
+        except RecursionError:
+            return
+    _base.ComparisonChecker._check_callable_comparison = _check_callable_comparison
+
 def register(*_):
     "monkeypatch the item"
     _namedtuple_docstring()
@@ -91,3 +143,5 @@ def register(*_):
     if sys.version_info.major == 3 and sys.version_info.minor == 7:
         _py37_duplicatemro_bug()
         _py37_class_getitem__()
+        _py37_assign_no_return()
+        _py37_recursionerror()
