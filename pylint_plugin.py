@@ -143,5 +143,5 @@ def register(*_):
     if sys.version_info.major == 3 and sys.version_info.minor == 7:
         _py37_duplicatemro_bug()
         _py37_class_getitem__()
-        _py37_assign_no_return()
-        _py37_recursionerror()
+    _py37_assign_no_return()
+    _py37_recursionerror()
