@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 "Correcting a pylint bug in python 3.7 and pylint <= 2.2.1"
+from   pathlib   import Path
+from   importlib import import_module
 import sys
 import re
 
@@ -99,15 +101,14 @@ def _py37_assign_no_return():
     _typecheck.TypeChecker.visit_unaryop = _visit_unaryop
 
     from pylint.checkers import UNDEFINED
-    old3 = _typecheck.TypeChecker.add_message
-    def _add_message(
-        self,
-        msg_id,
-        line=None,
-        node=None,
-        args=None,
-        confidence= UNDEFINED,
-        col_offset=None,
+    def _add_message( # pylint: disable=too-many-arguments
+            self,
+            msg_id,
+            line=None,
+            node=None,
+            args=None,
+            confidence= UNDEFINED,
+            col_offset=None,
     ):
         """add a message of a given type"""
         if msg_id == "invalid-unary-operand-type" and args.endswith("recarray"):
@@ -139,6 +140,13 @@ def register(*_):
     "monkeypatch the item"
     _namedtuple_docstring()
     _overload()
+    path = Path(__file__).parent.parent/"_pylint_plugin.py"
+    if path.exists():
+        try:
+            sys.path.insert(0, str(path.parent.resolve()))
+            import_module("_pylint_plugin").register(*_)
+        finally:
+            sys.path.pop(0)
 
     if sys.version_info.major == 3 and sys.version_info.minor == 7:
         _py37_duplicatemro_bug()
